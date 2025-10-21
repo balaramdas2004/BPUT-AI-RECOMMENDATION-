@@ -1,0 +1,62 @@
+-- Comprehensive Demo Student Data (50+ students)
+-- This creates diverse student profiles across different branches, years, and skill levels
+
+-- Insert 50 additional students with diverse profiles
+INSERT INTO public.students (user_id, enrollment_number, branch, current_year, current_semester, cgpa, date_of_birth, phone, address, linkedin_url, github_url, bio, resume_url) VALUES
+-- Computer Science Students (20)
+(gen_random_uuid(), 'BPUT2021CS001', 'Computer Science', 4, 8, 8.5, '2003-01-15', '+91-9876543210', 'Bhubaneswar, Odisha', 'https://linkedin.com/in/student1', 'https://github.com/student1', 'Passionate full-stack developer with experience in React and Node.js', NULL),
+(gen_random_uuid(), 'BPUT2021CS002', 'Computer Science', 4, 8, 9.2, '2003-03-22', '+91-9876543211', 'Cuttack, Odisha', 'https://linkedin.com/in/student2', 'https://github.com/student2', 'AI/ML enthusiast with projects in computer vision and NLP', NULL),
+(gen_random_uuid(), 'BPUT2021CS003', 'Computer Science', 4, 8, 7.8, '2003-05-10', '+91-9876543212', 'Puri, Odisha', 'https://linkedin.com/in/student3', 'https://github.com/student3', 'Web developer specializing in frontend technologies', NULL),
+(gen_random_uuid(), 'BPUT2022CS004', 'Computer Science', 3, 6, 8.9, '2004-02-18', '+91-9876543213', 'Rourkela, Odisha', 'https://linkedin.com/in/student4', 'https://github.com/student4', 'Backend developer with expertise in microservices architecture', NULL),
+(gen_random_uuid(), 'BPUT2022CS005', 'Computer Science', 3, 6, 8.1, '2004-04-25', '+91-9876543214', 'Berhampur, Odisha', 'https://linkedin.com/in/student5', 'https://github.com/student5', 'DevOps engineer skilled in Docker, Kubernetes, and CI/CD', NULL),
+(gen_random_uuid(), 'BPUT2022CS006', 'Computer Science', 3, 6, 7.5, '2004-06-30', '+91-9876543215', 'Sambalpur, Odisha', 'https://linkedin.com/in/student6', 'https://github.com/student6', 'Mobile app developer with Flutter and React Native experience', NULL),
+(gen_random_uuid(), 'BPUT2023CS007', 'Computer Science', 2, 4, 8.7, '2005-01-12', '+91-9876543216', 'Bhubaneswar, Odisha', 'https://linkedin.com/in/student7', 'https://github.com/student7', 'Cybersecurity enthusiast with ethical hacking certifications', NULL),
+(gen_random_uuid(), 'BPUT2023CS008', 'Computer Science', 2, 4, 7.9, '2005-03-20', '+91-9876543217', 'Cuttack, Odisha', 'https://linkedin.com/in/student8', 'https://github.com/student8', 'Data science student with Python and R programming skills', NULL),
+(gen_random_uuid(), 'BPUT2023CS009', 'Computer Science', 2, 4, 8.3, '2005-05-28', '+91-9876543218', 'Puri, Odisha', 'https://linkedin.com/in/student9', 'https://github.com/student9', 'Game developer interested in Unity and Unreal Engine', NULL),
+(gen_random_uuid(), 'BPUT2024CS010', 'Computer Science', 1, 2, 8.0, '2006-02-14', '+91-9876543219', 'Rourkela, Odisha', 'https://linkedin.com/in/student10', 'https://github.com/student10', 'Aspiring software engineer learning algorithms and data structures', NULL),
+(gen_random_uuid(), 'BPUT2024CS011', 'Computer Science', 1, 2, 7.6, '2006-04-22', '+91-9876543220', 'Berhampur, Odisha', 'https://linkedin.com/in/student11', 'https://github.com/student11', 'Frontend enthusiast building responsive web applications', NULL),
+(gen_random_uuid(), 'BPUT2021CS012', 'Computer Science', 4, 8, 9.0, '2003-06-15', '+91-9876543221', 'Sambalpur, Odisha', 'https://linkedin.com/in/student12', 'https://github.com/student12', 'Cloud architect with AWS and Azure certifications', NULL),
+(gen_random_uuid(), 'BPUT2021CS013', 'Computer Science', 4, 8, 8.4, '2003-08-20', '+91-9876543222', 'Bhubaneswar, Odisha', 'https://linkedin.com/in/student13', 'https://github.com/student13', 'Blockchain developer exploring DeFi applications', NULL),
+(gen_random_uuid(), 'BPUT2022CS014', 'Computer Science', 3, 6, 7.7, '2004-07-10', '+91-9876543223', 'Cuttack, Odisha', 'https://linkedin.com/in/student14', 'https://github.com/student14', 'IoT developer with Arduino and Raspberry Pi projects', NULL),
+(gen_random_uuid(), 'BPUT2022CS015', 'Computer Science', 3, 6, 8.6, '2004-09-18', '+91-9876543224', 'Puri, Odisha', 'https://linkedin.com/in/student15', 'https://github.com/student15', 'Full-stack developer with MERN stack expertise', NULL),
+(gen_random_uuid(), 'BPUT2023CS016', 'Computer Science', 2, 4, 8.2, '2005-07-25', '+91-9876543225', 'Rourkela, Odisha', 'https://linkedin.com/in/student16', 'https://github.com/student16', 'AR/VR developer creating immersive experiences', NULL),
+(gen_random_uuid(), 'BPUT2023CS017', 'Computer Science', 2, 4, 7.4, '2005-09-30', '+91-9876543226', 'Berhampur, Odisha', 'https://linkedin.com/in/student17', 'https://github.com/student17', 'Database administrator with SQL and NoSQL expertise', NULL),
+(gen_random_uuid(), 'BPUT2024CS018', 'Computer Science', 1, 2, 8.1, '2006-06-12', '+91-9876543227', 'Sambalpur, Odisha', 'https://linkedin.com/in/student18', 'https://github.com/student18', 'Open-source contributor learning collaborative development', NULL),
+(gen_random_uuid(), 'BPUT2024CS019', 'Computer Science', 1, 2, 7.8, '2006-08-20', '+91-9876543228', 'Bhubaneswar, Odisha', 'https://linkedin.com/in/student19', 'https://github.com/student19', 'UI/UX developer with design thinking skills', NULL),
+(gen_random_uuid(), 'BPUT2021CS020', 'Computer Science', 4, 8, 8.8, '2003-10-25', '+91-9876543229', 'Cuttack, Odisha', 'https://linkedin.com/in/student20', 'https://github.com/student20', 'Machine learning engineer with TensorFlow expertise', NULL),
+
+-- Electronics & Communication Students (15)
+(gen_random_uuid(), 'BPUT2021EC001', 'Electronics & Communication', 4, 8, 8.3, '2003-02-10', '+91-9876543230', 'Puri, Odisha', 'https://linkedin.com/in/student21', NULL, 'Embedded systems engineer with microcontroller expertise', NULL),
+(gen_random_uuid(), 'BPUT2021EC002', 'Electronics & Communication', 4, 8, 8.9, '2003-04-15', '+91-9876543231', 'Rourkela, Odisha', 'https://linkedin.com/in/student22', NULL, 'Signal processing specialist with MATLAB proficiency', NULL),
+(gen_random_uuid(), 'BPUT2022EC003', 'Electronics & Communication', 3, 6, 7.6, '2004-03-20', '+91-9876543232', 'Berhampur, Odisha', 'https://linkedin.com/in/student23', NULL, 'VLSI design engineer with Verilog knowledge', NULL),
+(gen_random_uuid(), 'BPUT2022EC004', 'Electronics & Communication', 3, 6, 8.4, '2004-05-25', '+91-9876543233', 'Sambalpur, Odisha', 'https://linkedin.com/in/student24', NULL, 'Telecommunications engineer interested in 5G technology', NULL),
+(gen_random_uuid(), 'BPUT2023EC005', 'Electronics & Communication', 2, 4, 8.0, '2005-02-28', '+91-9876543234', 'Bhubaneswar, Odisha', 'https://linkedin.com/in/student25', NULL, 'Robotics enthusiast with automation projects', NULL),
+(gen_random_uuid(), 'BPUT2023EC006', 'Electronics & Communication', 2, 4, 7.8, '2005-04-30', '+91-9876543235', 'Cuttack, Odisha', 'https://linkedin.com/in/student26', NULL, 'PCB design engineer with Eagle and KiCad experience', NULL),
+(gen_random_uuid(), 'BPUT2024EC007', 'Electronics & Communication', 1, 2, 7.5, '2006-03-15', '+91-9876543236', 'Puri, Odisha', 'https://linkedin.com/in/student27', NULL, 'Circuit design student learning analog electronics', NULL),
+(gen_random_uuid(), 'BPUT2021EC008', 'Electronics & Communication', 4, 8, 8.7, '2003-06-20', '+91-9876543237', 'Rourkela, Odisha', 'https://linkedin.com/in/student28', NULL, 'RF engineer with antenna design expertise', NULL),
+(gen_random_uuid(), 'BPUT2022EC009', 'Electronics & Communication', 3, 6, 8.1, '2004-07-25', '+91-9876543238', 'Berhampur, Odisha', 'https://linkedin.com/in/student29', NULL, 'Power electronics specialist with renewable energy focus', NULL),
+(gen_random_uuid(), 'BPUT2022EC010', 'Electronics & Communication', 3, 6, 7.9, '2004-09-30', '+91-9876543239', 'Sambalpur, Odisha', 'https://linkedin.com/in/student30', NULL, 'Optical communication engineer with fiber optics knowledge', NULL),
+(gen_random_uuid(), 'BPUT2023EC011', 'Electronics & Communication', 2, 4, 8.5, '2005-06-10', '+91-9876543240', 'Bhubaneswar, Odisha', 'https://linkedin.com/in/student31', NULL, 'Digital electronics expert with FPGA programming', NULL),
+(gen_random_uuid(), 'BPUT2024EC012', 'Electronics & Communication', 1, 2, 7.7, '2006-05-18', '+91-9876543241', 'Cuttack, Odisha', 'https://linkedin.com/in/student32', NULL, 'Communication systems student learning wireless protocols', NULL),
+(gen_random_uuid(), 'BPUT2021EC013', 'Electronics & Communication', 4, 8, 8.6, '2003-08-12', '+91-9876543242', 'Puri, Odisha', 'https://linkedin.com/in/student33', NULL, 'Semiconductor device engineer with fab experience', NULL),
+(gen_random_uuid(), 'BPUT2022EC014', 'Electronics & Communication', 3, 6, 8.2, '2004-11-15', '+91-9876543243', 'Rourkela, Odisha', 'https://linkedin.com/in/student34', NULL, 'Control systems engineer with PLC programming', NULL),
+(gen_random_uuid(), 'BPUT2023EC015', 'Electronics & Communication', 2, 4, 7.4, '2005-08-22', '+91-9876543244', 'Berhampur, Odisha', 'https://linkedin.com/in/student35', NULL, 'Instrumentation engineer with sensor technology knowledge', NULL),
+
+-- Mechanical Engineering Students (10)
+(gen_random_uuid(), 'BPUT2021ME001', 'Mechanical', 4, 8, 8.2, '2003-03-12', '+91-9876543245', 'Sambalpur, Odisha', 'https://linkedin.com/in/student36', NULL, 'CAD/CAM engineer with SolidWorks and AutoCAD expertise', NULL),
+(gen_random_uuid(), 'BPUT2021ME002', 'Mechanical', 4, 8, 8.8, '2003-05-18', '+91-9876543246', 'Bhubaneswar, Odisha', 'https://linkedin.com/in/student37', NULL, 'Thermal engineering specialist with CFD analysis skills', NULL),
+(gen_random_uuid(), 'BPUT2022ME003', 'Mechanical', 3, 6, 7.7, '2004-04-22', '+91-9876543247', 'Cuttack, Odisha', 'https://linkedin.com/in/student38', NULL, 'Manufacturing engineer with lean six sigma knowledge', NULL),
+(gen_random_uuid(), 'BPUT2022ME004', 'Mechanical', 3, 6, 8.3, '2004-06-28', '+91-9876543248', 'Puri, Odisha', 'https://linkedin.com/in/student39', NULL, 'Automobile engineer interested in electric vehicles', NULL),
+(gen_random_uuid(), 'BPUT2023ME005', 'Mechanical', 2, 4, 7.9, '2005-03-30', '+91-9876543249', 'Rourkela, Odisha', 'https://linkedin.com/in/student40', NULL, 'Robotics and automation engineer with PLC experience', NULL),
+(gen_random_uuid(), 'BPUT2023ME006', 'Mechanical', 2, 4, 8.5, '2005-05-15', '+91-9876543250', 'Berhampur, Odisha', 'https://linkedin.com/in/student41', NULL, 'Materials science engineer researching composites', NULL),
+(gen_random_uuid(), 'BPUT2024ME007', 'Mechanical', 1, 2, 7.6, '2006-04-10', '+91-9876543251', 'Sambalpur, Odisha', 'https://linkedin.com/in/student42', NULL, 'Design engineer learning mechanical drafting', NULL),
+(gen_random_uuid(), 'BPUT2021ME008', 'Mechanical', 4, 8, 8.4, '2003-07-20', '+91-9876543252', 'Bhubaneswar, Odisha', 'https://linkedin.com/in/student43', NULL, 'Production engineer with quality control expertise', NULL),
+(gen_random_uuid(), 'BPUT2022ME009', 'Mechanical', 3, 6, 8.0, '2004-08-25', '+91-9876543253', 'Cuttack, Odisha', 'https://linkedin.com/in/student44', NULL, 'HVAC engineer with energy efficiency focus', NULL),
+(gen_random_uuid(), 'BPUT2023ME010', 'Mechanical', 2, 4, 7.8, '2005-09-12', '+91-9876543254', 'Puri, Odisha', 'https://linkedin.com/in/student45', NULL, 'Mechatronics engineer combining mechanical and electronics', NULL),
+
+-- Civil Engineering Students (5)
+(gen_random_uuid(), 'BPUT2021CV001', 'Civil', 4, 8, 8.1, '2003-04-08', '+91-9876543255', 'Rourkela, Odisha', 'https://linkedin.com/in/student46', NULL, 'Structural engineer with BIM and Revit skills', NULL),
+(gen_random_uuid(), 'BPUT2022CV002', 'Civil', 3, 6, 8.6, '2004-05-14', '+91-9876543256', 'Berhampur, Odisha', 'https://linkedin.com/in/student47', NULL, 'Transportation engineer specializing in highway design', NULL),
+(gen_random_uuid(), 'BPUT2022CV003', 'Civil', 3, 6, 7.5, '2004-06-20', '+91-9876543257', 'Sambalpur, Odisha', 'https://linkedin.com/in/student48', NULL, 'Environmental engineer with water resources focus', NULL),
+(gen_random_uuid(), 'BPUT2023CV004', 'Civil', 2, 4, 8.3, '2005-04-25', '+91-9876543258', 'Bhubaneswar, Odisha', 'https://linkedin.com/in/student49', NULL, 'Construction management student with project planning skills', NULL),
+(gen_random_uuid(), 'BPUT2024CV005', 'Civil', 1, 2, 7.9, '2006-07-18', '+91-9876543259', 'Cuttack, Odisha', 'https://linkedin.com/in/student50', NULL, 'Geotechnical engineer learning soil mechanics', NULL);

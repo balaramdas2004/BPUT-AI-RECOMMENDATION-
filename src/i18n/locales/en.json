@@ -1,0 +1,111 @@
+{
+  "nav": {
+    "home": "Home",
+    "features": "Features",
+    "howItWorks": "How It Works",
+    "contact": "Contact",
+    "login": "Login",
+    "getStarted": "Get Started"
+  },
+  "hero": {
+    "title": "Transform Your Career Journey with AI-Powered Guidance",
+    "subtitle": "Empowering students and institutions with intelligent career planning, personalized recommendations, and data-driven placement insights.",
+    "cta": "Start Your Journey",
+    "learnMore": "Learn More"
+  },
+  "dashboard": {
+    "welcome": "Welcome",
+    "profile": "Profile",
+    "applications": "Applications",
+    "jobs": "Jobs",
+    "analytics": "Analytics",
+    "settings": "Settings",
+    "logout": "Logout",
+    "achievements": "Achievements",
+    "leaderboard": "Leaderboard"
+  },
+  "gamification": {
+    "level": "Level",
+    "points": "Points",
+    "experience": "Experience",
+    "streak": "Day Streak",
+    "achievements": "Achievements",
+    "unlocked": "Unlocked",
+    "locked": "Locked",
+    "progress": "Progress",
+    "rank": "Rank",
+    "viewAll": "View All",
+    "leaderboard": "Leaderboard",
+    "overall": "Overall",
+    "monthly": "Monthly",
+    "branch": "By Branch",
+    "congratulations": "Congratulations!",
+    "achievementUnlocked": "Achievement Unlocked",
+    "categories": {
+      "profile": "Profile",
+      "skills": "Skills",
+      "applications": "Applications",
+      "projects": "Projects",
+      "academic": "Academic",
+      "certifications": "Certifications",
+      "special": "Special",
+      "interviews": "Interviews",
+      "progression": "Progression"
+    }
+  },
+  "profile": {
+    "title": "Profile",
+    "editProfile": "Edit Profile",
+    "save": "Save",
+    "cancel": "Cancel",
+    "fullName": "Full Name",
+    "email": "Email",
+    "phone": "Phone",
+    "department": "Department",
+    "branch": "Branch",
+    "year": "Year of Study",
+    "cgpa": "CGPA",
+    "skills": "Skills",
+    "projects": "Projects",
+    "certifications": "Certifications"
+  },
+  "jobs": {
+    "title": "Job Board",
+    "search": "Search jobs...",
+    "filter": "Filter",
+    "apply": "Apply",
+    "applied": "Applied",
+    "deadline": "Deadline",
+    "location": "Location",
+    "type": "Type",
+    "salary": "Salary",
+    "requirements": "Requirements"
+  },
+  "analytics": {
+    "title": "Analytics Dashboard",
+    "placementTrends": "Placement Trends",
+    "skillDemand": "Skill Demand",
+    "branchAnalysis": "Branch Analysis",
+    "filters": "Filters",
+    "year": "Year",
+    "department": "Department",
+    "branch": "Branch",
+    "exportReport": "Export Report"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "close": "Close",
+    "submit": "Submit",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
+    "all": "All"
+  }
+}
