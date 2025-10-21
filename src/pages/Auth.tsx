@@ -19,7 +19,7 @@ export default function Auth() {
   const [isVisible, setIsVisible] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
-  const { signIn, signUp, resetPassword } = useAuth();
+  const { signIn, signUp, addRoleToAccount, resetPassword, user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -45,18 +45,32 @@ export default function Auth() {
     if (isLogin) {
       const { error } = await signIn(email, password);
       if (!error) {
-        // Redirect based on role will be handled by auth state change
+        // Navigation will be handled by auth state change
         setTimeout(() => {
           navigate(`/${selectedRole}/dashboard`);
         }, 500);
       }
     } else {
-      const fullName = formData.get('fullName') as string;
-      const { error } = await signUp(email, password, fullName, selectedRole);
-      
-      if (!error) {
-        // Switch to login mode after successful signup
-        setIsLogin(true);
+      // Check if user is already signed in (adding a new role)
+      if (user) {
+        const fullName = formData.get('fullName') as string;
+        const { error } = await addRoleToAccount(selectedRole, fullName);
+        
+        if (!error) {
+          setTimeout(() => {
+            navigate(`/${selectedRole}/dashboard`);
+          }, 500);
+        }
+      } else {
+        // New user signup
+        const fullName = formData.get('fullName') as string;
+        const { error } = await signUp(email, password, fullName, selectedRole);
+        
+        if (!error) {
+          // Switch to login mode after successful signup
+          setIsLogin(true);
+          toast.success('Account created! Please sign in to continue.');
+        }
       }
     }
 

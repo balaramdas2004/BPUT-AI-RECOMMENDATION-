@@ -4,17 +4,20 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
-type UserRole = 'student' | 'employer' | 'admin' | null;
+type UserRole = 'student' | 'employer' | 'admin';
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
-  role: UserRole;
+  roles: UserRole[];
+  activeRole: UserRole | null;
   loading: boolean;
   signUp: (email: string, password: string, fullName: string, role: UserRole) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
+  switchRole: (role: UserRole) => void;
+  addRoleToAccount: (role: UserRole, fullName?: string) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,7 +25,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [role, setRole] = useState<UserRole>(null);
+  const [roles, setRoles] = useState<UserRole[]>([]);
+  const [activeRole, setActiveRole] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -33,13 +37,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Fetch user role when session changes
+        // Fetch user roles when session changes
         if (session?.user) {
           setTimeout(() => {
-            fetchUserRole(session.user.id);
+            fetchUserRoles(session.user.id);
           }, 0);
         } else {
-          setRole(null);
+          setRoles([]);
+          setActiveRole(null);
         }
       }
     );
@@ -50,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        fetchUserRole(session.user.id);
+        fetchUserRoles(session.user.id);
       } else {
         setLoading(false);
       }
@@ -59,34 +64,134 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const fetchUserRole = async (userId: string) => {
+  const fetchUserRoles = async (userId: string) => {
     try {
       const { data, error } = await supabase
         .from('user_roles')
         .select('role')
-        .eq('user_id', userId)
-        .maybeSingle();
+        .eq('user_id', userId);
 
       if (error) {
-        console.error('Error fetching user role:', error);
-        setRole(null);
+        console.error('Error fetching user roles:', error);
+        setRoles([]);
+        setActiveRole(null);
         setLoading(false);
         return;
       }
 
-      if (!data) {
-        console.warn('No role found for user');
-        setRole(null);
+      if (!data || data.length === 0) {
+        console.warn('No roles found for user');
+        setRoles([]);
+        setActiveRole(null);
         setLoading(false);
         return;
       }
 
-      setRole(data.role as UserRole);
+      const userRoles = data.map(r => r.role as UserRole);
+      setRoles(userRoles);
+      
+      // Set active role from localStorage or default to first role
+      const savedRole = localStorage.getItem('activeRole') as UserRole;
+      if (savedRole && userRoles.includes(savedRole)) {
+        setActiveRole(savedRole);
+      } else {
+        setActiveRole(userRoles[0]);
+        localStorage.setItem('activeRole', userRoles[0]);
+      }
     } catch (error) {
-      console.error('Error fetching user role:', error);
-      setRole(null);
+      console.error('Error fetching user roles:', error);
+      setRoles([]);
+      setActiveRole(null);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const switchRole = (role: UserRole) => {
+    if (roles.includes(role)) {
+      setActiveRole(role);
+      localStorage.setItem('activeRole', role);
+      navigate(`/${role}/dashboard`);
+      toast.success(`Switched to ${role} portal`);
+    }
+  };
+
+  const addRoleToAccount = async (selectedRole: UserRole, fullName?: string) => {
+    try {
+      if (!user) {
+        toast.error('Please sign in first');
+        return { error: new Error('No user') };
+      }
+
+      // Check if user already has this role
+      const { data: existingRole } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', selectedRole)
+        .maybeSingle();
+
+      if (existingRole) {
+        toast.error(`You already have the ${selectedRole} role`);
+        return { error: new Error('Role already exists') };
+      }
+
+      // Add the new role
+      const { error: roleError } = await supabase
+        .from('user_roles')
+        .insert({ user_id: user.id, role: selectedRole });
+
+      if (roleError) {
+        console.error('Error adding role:', roleError);
+        toast.error(`Failed to add role: ${roleError.message}`);
+        return { error: roleError };
+      }
+
+      // Create role-specific profile
+      if (selectedRole === 'student') {
+        const { error: studentError } = await supabase
+          .from('students')
+          .insert({ user_id: user.id });
+        
+        if (studentError) {
+          console.error('Error creating student profile:', studentError);
+          toast.error(`Failed to create student profile: ${studentError.message}`);
+          return { error: studentError };
+        }
+      } else if (selectedRole === 'employer') {
+        const { error: employerError } = await supabase
+          .from('employers')
+          .insert({ 
+            user_id: user.id, 
+            company_name: fullName || 'My Company',
+            verification_status: 'pending'
+          });
+        
+        if (employerError) {
+          console.error('Error creating employer profile:', employerError);
+          toast.error(`Failed to create employer profile: ${employerError.message}`);
+          return { error: employerError };
+        }
+      } else if (selectedRole === 'admin') {
+        const { error: adminError } = await supabase
+          .from('admins')
+          .insert({ user_id: user.id });
+        
+        if (adminError) {
+          console.error('Error creating admin profile:', adminError);
+          toast.error(`Failed to create admin profile: ${adminError.message}`);
+          return { error: adminError };
+        }
+      }
+
+      // Refresh roles
+      await fetchUserRoles(user.id);
+      toast.success(`${selectedRole} role added successfully!`);
+      return { error: null };
+    } catch (error: any) {
+      console.error('Unexpected error adding role:', error);
+      toast.error('An unexpected error occurred.');
+      return { error };
     }
   };
 
@@ -94,7 +199,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const redirectUrl = `${window.location.origin}/`;
       
-      // Step 1: Create auth user
+      // First, check if user already exists
+      const { data: existingSession } = await supabase.auth.getSession();
+      
+      if (existingSession?.session?.user) {
+        // User is already signed in, add role instead
+        return await addRoleToAccount(selectedRole, fullName);
+      }
+
+      // Try to sign up
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -107,12 +220,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (error) {
-        console.error('Auth signup error:', error);
-        if (error.message.includes('already registered')) {
-          toast.error('This email is already registered. Please sign in instead.');
-        } else {
-          toast.error(`Signup failed: ${error.message}`);
+        // Check if user already exists
+        if (error.message.includes('already registered') || error.message.includes('User already registered')) {
+          toast.error('This email is already registered. Please sign in to add this role to your account.');
+          return { error };
         }
+        console.error('Auth signup error:', error);
+        toast.error(`Signup failed: ${error.message}`);
         return { error };
       }
       
@@ -124,7 +238,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       console.log('✓ User created:', data.user.id);
 
-      // Step 2: Create user role
+      // Create user role
       const { error: roleError } = await supabase
         .from('user_roles')
         .insert({ user_id: data.user.id, role: selectedRole });
@@ -137,51 +251,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       console.log('✓ User role created:', selectedRole);
 
-      // Step 3: Create role-specific profile
-      try {
-        if (selectedRole === 'student') {
-          const { error: studentError } = await supabase
-            .from('students')
-            .insert({ user_id: data.user.id });
-          
-          if (studentError) {
-            console.error('Error creating student profile:', studentError);
-            toast.error(`Failed to create student profile: ${studentError.message}`);
-            return { error: studentError };
-          }
-          console.log('✓ Student profile created');
-          
-        } else if (selectedRole === 'employer') {
-          const { error: employerError } = await supabase
-            .from('employers')
-            .insert({ 
-              user_id: data.user.id, 
-              company_name: fullName || 'My Company',
-              verification_status: 'pending'
-            });
-          
-          if (employerError) {
-            console.error('Error creating employer profile:', employerError);
-            toast.error(`Failed to create employer profile: ${employerError.message}`);
-            return { error: employerError };
-          }
-          console.log('✓ Employer profile created');
-          
-        } else if (selectedRole === 'admin') {
-          const { error: adminError } = await supabase
-            .from('admins')
-            .insert({ user_id: data.user.id });
-          
-          if (adminError) {
-            console.error('Error creating admin profile:', adminError);
-            toast.error(`Failed to create admin profile: ${adminError.message}`);
-            return { error: adminError };
-          }
-          console.log('✓ Admin profile created');
+      // Create role-specific profile
+      if (selectedRole === 'student') {
+        const { error: studentError } = await supabase
+          .from('students')
+          .insert({ user_id: data.user.id });
+        
+        if (studentError) {
+          console.error('Error creating student profile:', studentError);
+          toast.error(`Failed to create student profile: ${studentError.message}`);
+          return { error: studentError };
         }
-      } catch (profileError: any) {
-        console.error('Profile creation error:', profileError);
-        return { error: profileError };
+        console.log('✓ Student profile created');
+        
+      } else if (selectedRole === 'employer') {
+        const { error: employerError } = await supabase
+          .from('employers')
+          .insert({ 
+            user_id: data.user.id, 
+            company_name: fullName || 'My Company',
+            verification_status: 'pending'
+          });
+        
+        if (employerError) {
+          console.error('Error creating employer profile:', employerError);
+          toast.error(`Failed to create employer profile: ${employerError.message}`);
+          return { error: employerError };
+        }
+        console.log('✓ Employer profile created');
+        
+      } else if (selectedRole === 'admin') {
+        const { error: adminError } = await supabase
+          .from('admins')
+          .insert({ user_id: data.user.id });
+        
+        if (adminError) {
+          console.error('Error creating admin profile:', adminError);
+          toast.error(`Failed to create admin profile: ${adminError.message}`);
+          return { error: adminError };
+        }
+        console.log('✓ Admin profile created');
       }
 
       toast.success('Account created successfully! You can now sign in.');
@@ -233,7 +342,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     setUser(null);
     setSession(null);
-    setRole(null);
+    setRoles([]);
+    setActiveRole(null);
+    localStorage.removeItem('activeRole');
     toast.success('Signed out successfully');
     navigate('/');
   };
@@ -260,7 +371,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, role, loading, signUp, signIn, signOut, resetPassword }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      session, 
+      roles, 
+      activeRole, 
+      loading, 
+      signUp, 
+      signIn, 
+      signOut, 
+      resetPassword,
+      switchRole,
+      addRoleToAccount
+    }}>
       {children}
     </AuthContext.Provider>
   );

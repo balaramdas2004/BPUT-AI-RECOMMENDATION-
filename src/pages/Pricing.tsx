@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 
 export default function Pricing() {
-  const { user, role } = useAuth();
+  const { user, activeRole } = useAuth();
   const { availablePlans, currentPlan, loading } = useSubscription();
   const navigate = useNavigate();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('annual');
@@ -149,7 +149,7 @@ export default function Pricing() {
         </div>
 
         {/* Plans Tabs */}
-        <Tabs defaultValue={role || 'student'} className="w-full">
+        <Tabs defaultValue={activeRole || 'student'} className="w-full">
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-3 mb-8">
             <TabsTrigger value="student">
               <GraduationCap className="h-4 w-4 mr-2" />

@@ -33,20 +33,20 @@ export interface FeatureUsage {
 }
 
 export function useSubscription() {
-  const { user, role } = useAuth();
+  const { user, activeRole } = useAuth();
   const [currentSubscription, setCurrentSubscription] = useState<UserSubscription | null>(null);
   const [availablePlans, setAvailablePlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [usageData, setUsageData] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    if (user && role) {
+    if (user && activeRole) {
       fetchSubscriptionData();
       fetchUsageData();
     } else {
       setLoading(false);
     }
-  }, [user, role]);
+  }, [user, activeRole]);
 
   const fetchSubscriptionData = async () => {
     try {
@@ -68,7 +68,7 @@ export function useSubscription() {
       const { data: plans, error: plansError } = await supabase
         .from('subscription_plans')
         .select('*')
-        .eq('user_type', role)
+        .eq('user_type', activeRole)
         .eq('is_active', true)
         .order('display_order');
 
