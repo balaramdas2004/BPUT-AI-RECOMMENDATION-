@@ -68,6 +68,8 @@ export default function EmployerDashboard() {
   const [selectedJobForMatching, setSelectedJobForMatching] = useState<string | null>(null);
   const [isSchedulingInterview, setIsSchedulingInterview] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState<string | null>(null);
+  const [applicationFilter, setApplicationFilter] = useState<string>('all');
+  const [activeTab, setActiveTab] = useState('jobs');
   const [interviewData, setInterviewData] = useState({
     scheduled_at: '',
     interview_type: 'technical',
@@ -337,6 +339,15 @@ export default function EmployerDashboard() {
     pendingApplications: applications.filter(a => a.status === 'submitted').length,
   };
 
+  const filteredApplications = applicationFilter === 'all' 
+    ? applications 
+    : applications.filter(a => a.status === applicationFilter);
+
+  const handlePendingClick = () => {
+    setApplicationFilter('submitted');
+    setActiveTab('applications');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-accent/20">
       <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -387,18 +398,22 @@ export default function EmployerDashboard() {
               <div className="text-2xl font-bold">{stats.totalApplications}</div>
             </CardContent>
           </Card>
-          <Card>
+          <Card 
+            className="cursor-pointer hover:bg-accent/50 transition-colors"
+            onClick={handlePendingClick}
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Pending</CardTitle>
               <Search className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.pendingApplications}</div>
+              <p className="text-xs text-muted-foreground mt-1">Click to view</p>
             </CardContent>
           </Card>
         </div>
 
-        <Tabs defaultValue="jobs" className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList>
             <TabsTrigger value="jobs">Job Postings</TabsTrigger>
             <TabsTrigger value="applications">Applications</TabsTrigger>
@@ -563,9 +578,48 @@ export default function EmployerDashboard() {
           </TabsContent>
 
           <TabsContent value="applications" className="space-y-4">
-            <h2 className="text-2xl font-bold">Applications</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold">Applications</h2>
+              <div className="flex gap-2">
+                <Button
+                  variant={applicationFilter === 'all' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setApplicationFilter('all')}
+                >
+                  All ({applications.length})
+                </Button>
+                <Button
+                  variant={applicationFilter === 'submitted' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setApplicationFilter('submitted')}
+                >
+                  Pending ({applications.filter(a => a.status === 'submitted').length})
+                </Button>
+                <Button
+                  variant={applicationFilter === 'reviewed' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setApplicationFilter('reviewed')}
+                >
+                  Reviewed ({applications.filter(a => a.status === 'reviewed').length})
+                </Button>
+                <Button
+                  variant={applicationFilter === 'shortlisted' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setApplicationFilter('shortlisted')}
+                >
+                  Shortlisted ({applications.filter(a => a.status === 'shortlisted').length})
+                </Button>
+              </div>
+            </div>
             <div className="grid gap-4">
-              {applications.map((app) => (
+              {filteredApplications.length === 0 ? (
+                <Card>
+                  <CardContent className="py-8 text-center text-muted-foreground">
+                    No applications found for this filter.
+                  </CardContent>
+                </Card>
+              ) : (
+                filteredApplications.map((app) => (
                 <Card key={app.id}>
                   <CardHeader>
                     <div className="flex justify-between items-start">
@@ -701,8 +755,9 @@ export default function EmployerDashboard() {
                       </Dialog>
                     </div>
                   </CardContent>
-                </Card>
-              ))}
+                 </Card>
+                ))
+              )}
             </div>
           </TabsContent>
 

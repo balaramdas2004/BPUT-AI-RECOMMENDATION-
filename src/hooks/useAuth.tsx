@@ -14,6 +14,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, fullName: string, role: UserRole) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -107,7 +108,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (error) {
         console.error('Auth signup error:', error);
-        toast.error(`Signup failed: ${error.message}`);
+        if (error.message.includes('already registered')) {
+          toast.error('This email is already registered. Please sign in instead.');
+        } else {
+          toast.error(`Signup failed: ${error.message}`);
+        }
         return { error };
       }
       
@@ -179,7 +184,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { error: profileError };
       }
 
-      toast.success('Account created successfully! Please complete your profile.');
+      toast.success('Account created successfully! You can now sign in.');
       return { error: null };
     } catch (error: any) {
       console.error('Unexpected signup error:', error);
@@ -190,16 +195,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) return { error };
+      if (error) {
+        console.error('Sign in error:', error);
+        if (error.message.includes('Invalid login credentials')) {
+          toast.error('Invalid email or password. Please check your credentials.');
+        } else {
+          toast.error(`Sign in failed: ${error.message}`);
+        }
+        return { error };
+      }
+      
+      if (!data.user) {
+        const noUserError = new Error('Sign in failed - no user returned');
+        toast.error('Sign in failed. Please try again.');
+        return { error: noUserError };
+      }
       
       toast.success('Signed in successfully!');
       return { error: null };
     } catch (error: any) {
+      console.error('Unexpected sign in error:', error);
+      toast.error('An unexpected error occurred during sign in.');
       return { error };
     }
   };
@@ -217,8 +238,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     navigate('/');
   };
 
+  const resetPassword = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth?reset=true`,
+      });
+
+      if (error) {
+        console.error('Password reset error:', error);
+        toast.error(`Failed to send reset email: ${error.message}`);
+        return { error };
+      }
+
+      toast.success('Password reset email sent! Check your inbox.');
+      return { error: null };
+    } catch (error: any) {
+      console.error('Unexpected password reset error:', error);
+      toast.error('An unexpected error occurred.');
+      return { error };
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, role, loading, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, session, role, loading, signUp, signIn, signOut, resetPassword }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { GraduationCap, Building2, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -16,13 +17,22 @@ export default function Auth() {
   const [selectedRole, setSelectedRole] = useState<UserRole>('student');
   const [loading, setLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const { signIn, signUp, resetPassword } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     // Trigger entrance animation
     setIsVisible(true);
-  }, []);
+    
+    // Check if we're in password reset mode
+    const resetMode = searchParams.get('reset');
+    if (resetMode === 'true') {
+      toast.info('Please enter your new password');
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -34,9 +44,7 @@ export default function Auth() {
 
     if (isLogin) {
       const { error } = await signIn(email, password);
-      if (error) {
-        toast.error(error.message || 'Failed to sign in');
-      } else {
+      if (!error) {
         // Redirect based on role will be handled by auth state change
         setTimeout(() => {
           navigate(`/${selectedRole}/dashboard`);
@@ -46,17 +54,24 @@ export default function Auth() {
       const fullName = formData.get('fullName') as string;
       const { error } = await signUp(email, password, fullName, selectedRole);
       
-      if (error) {
-        if (error.message.includes('already registered')) {
-          toast.error('This email is already registered. Please sign in instead.');
-        } else {
-          toast.error(error.message || 'Failed to create account');
-        }
-      } else {
-        setTimeout(() => {
-          navigate(`/${selectedRole}/dashboard`);
-        }, 500);
+      if (!error) {
+        // Switch to login mode after successful signup
+        setIsLogin(true);
       }
+    }
+
+    setLoading(false);
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const { error } = await resetPassword(resetEmail);
+    
+    if (!error) {
+      setShowForgotPassword(false);
+      setResetEmail('');
     }
 
     setLoading(false);
@@ -176,6 +191,47 @@ export default function Auth() {
               {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
             </button>
           </div>
+
+          {isLogin && (
+            <div className="mt-2 text-center text-sm animate-fade-in">
+              <Dialog open={showForgotPassword} onOpenChange={setShowForgotPassword}>
+                <DialogTrigger asChild>
+                  <button
+                    type="button"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                    disabled={loading}
+                  >
+                    Forgot password?
+                  </button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Reset Password</DialogTitle>
+                    <DialogDescription>
+                      Enter your email address and we'll send you a link to reset your password.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <form onSubmit={handleForgotPassword} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="resetEmail">Email</Label>
+                      <Input
+                        id="resetEmail"
+                        type="email"
+                        placeholder="you@example.com"
+                        value={resetEmail}
+                        onChange={(e) => setResetEmail(e.target.value)}
+                        required
+                        disabled={loading}
+                      />
+                    </div>
+                    <Button type="submit" className="w-full" disabled={loading}>
+                      {loading ? 'Sending...' : 'Send Reset Link'}
+                    </Button>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
+          )}
 
           <div className="mt-4 text-center animate-fade-in">
             <Button
