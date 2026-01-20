@@ -6,6 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { isSupabaseConfigured } from '@/lib/env';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -52,26 +53,42 @@ const ChatDialog = ({ isOpen, onClose, contextType }: ChatDialogProps) => {
     setIsLoading(true);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('Not authenticated');
+      // If Supabase isn't configured, fall back to a local dev proxy that calls Gemini server-side.
+      if (!isSupabaseConfigured) {
+        const response = await fetch('/api/gemini/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: `You are an AI Career Assistant. Context: ${contextType}.\n\nUser: ${userMessage}`,
+          }),
+        });
+
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          throw new Error(err?.error || 'Gemini proxy request failed');
+        }
+
+        const data = await response.json();
+        const text =
+          data?.candidates?.[0]?.content?.parts?.map((p: any) => p?.text).filter(Boolean).join('') ||
+          'No response';
+
+        setMessages(prev => [...prev, { role: 'assistant', content: text }]);
+        setIsLoading(false);
+        return;
       }
 
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-career-assistant`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify({
-            message: userMessage,
-            conversationId,
-            contextType
-          }),
-        }
-      );
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-career-assistant`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ message: userMessage, conversationId, contextType }),
+      });
 
       if (!response.ok) {
         const error = await response.json();

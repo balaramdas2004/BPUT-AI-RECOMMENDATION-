@@ -1,0 +1,16 @@
+Create a file named `.env.local` in the `BPUT-AI-RECOMMENDATION-` folder (same folder as `package.json`).
+
+Put this inside:
+
+GEMINI_API_KEY=YOUR_GEMINI_API_KEY
+
+Optional (to enable full Supabase backend auth + database):
+
+VITE_SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=YOUR_SUPABASE_ANON_PUBLIC_KEY
+
+Then restart:
+
+npm run dev
+
+

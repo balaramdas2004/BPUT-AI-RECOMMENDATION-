@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { GraduationCap, Building2, Shield } from 'lucide-react';
 import { toast } from 'sonner';
+import { isSupabaseConfigured } from '@/lib/env';
 
 type UserRole = 'student' | 'employer' | 'admin';
 
@@ -67,9 +68,15 @@ export default function Auth() {
         const { error } = await signUp(email, password, fullName, selectedRole);
         
         if (!error) {
-          // Switch to login mode after successful signup
-          setIsLogin(true);
-          toast.success('Account created! Please sign in to continue.');
+          if (!isSupabaseConfigured) {
+            // Demo mode: go straight to the dashboard after signup.
+            toast.success('Account created (demo mode)! Redirecting…');
+            setTimeout(() => navigate(`/${selectedRole}/dashboard`), 300);
+          } else {
+            // Real mode: user may need email confirmation; keep login flow.
+            setIsLogin(true);
+            toast.success('Account created! Please sign in to continue.');
+          }
         }
       }
     }

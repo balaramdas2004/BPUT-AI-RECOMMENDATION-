@@ -3,8 +3,17 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { isSupabaseConfigured } from '@/lib/env';
 
 type UserRole = 'student' | 'employer' | 'admin';
+
+function demoUserId() {
+  // crypto.randomUUID() can be unavailable in some environments; fall back safely.
+  const uuid =
+    (globalThis.crypto as any)?.randomUUID?.() ??
+    `${Date.now()}_${Math.random().toString(16).slice(2)}`;
+  return `demo_${uuid}`;
+}
 
 interface AuthContextType {
   user: User | null;
@@ -31,6 +40,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Local/demo auth fallback (no Supabase configured)
+    if (!isSupabaseConfigured) {
+      const raw = localStorage.getItem('demoAuth');
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw) as { userId: string; email: string; roles: UserRole[]; activeRole?: UserRole | null };
+          setUser(({ id: parsed.userId, email: parsed.email } as unknown) as User);
+          setSession(({
+            access_token: 'demo',
+            token_type: 'bearer',
+            user: ({ id: parsed.userId, email: parsed.email } as unknown) as User,
+          } as unknown) as Session);
+          setRoles(parsed.roles ?? []);
+          const ar = (parsed.activeRole ?? parsed.roles?.[0] ?? null) as UserRole | null;
+          setActiveRole(ar);
+          if (ar) localStorage.setItem('activeRole', ar);
+        } catch {
+          localStorage.removeItem('demoAuth');
+        }
+      }
+      setLoading(false);
+      return;
+    }
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -197,6 +230,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (email: string, password: string, fullName: string, selectedRole: UserRole) => {
     try {
+      if (!isSupabaseConfigured) {
+        const userId = demoUserId();
+        const demo = { userId, email, roles: [selectedRole], activeRole: selectedRole, fullName };
+        localStorage.setItem('demoAuth', JSON.stringify(demo));
+        localStorage.setItem('activeRole', selectedRole);
+        setUser(({ id: userId, email } as unknown) as User);
+        setSession(({
+          access_token: 'demo',
+          token_type: 'bearer',
+          user: ({ id: userId, email } as unknown) as User,
+        } as unknown) as Session);
+        setRoles([selectedRole]);
+        setActiveRole(selectedRole);
+        toast.success('Demo account created (local mode).');
+        return { error: null };
+      }
+
       const redirectUrl = `${window.location.origin}/`;
       
       // First, check if user already exists
@@ -304,6 +354,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
+      if (!isSupabaseConfigured) {
+        // In demo mode we "sign in" any email/password and persist locally.
+        const raw = localStorage.getItem('demoAuth');
+        if (raw) {
+          const parsed = JSON.parse(raw) as { userId: string; email: string; roles: UserRole[]; activeRole?: UserRole | null };
+          const role = (localStorage.getItem('activeRole') as UserRole) || parsed.activeRole || parsed.roles?.[0] || 'student';
+          setUser(({ id: parsed.userId, email: parsed.email } as unknown) as User);
+          setSession(({
+            access_token: 'demo',
+            token_type: 'bearer',
+            user: ({ id: parsed.userId, email: parsed.email } as unknown) as User,
+          } as unknown) as Session);
+          setRoles(parsed.roles ?? [role]);
+          setActiveRole(role);
+          toast.success('Signed in (local demo mode).');
+          return { error: null };
+        }
+
+        const userId = demoUserId();
+        const role = (localStorage.getItem('activeRole') as UserRole) || 'student';
+        const demo = { userId, email, roles: [role], activeRole: role };
+        localStorage.setItem('demoAuth', JSON.stringify(demo));
+        setUser(({ id: userId, email } as unknown) as User);
+        setSession(({
+          access_token: 'demo',
+          token_type: 'bearer',
+          user: ({ id: userId, email } as unknown) as User,
+        } as unknown) as Session);
+        setRoles([role]);
+        setActiveRole(role);
+        toast.success('Signed in (local demo mode).');
+        return { error: null };
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -335,6 +419,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
+    if (!isSupabaseConfigured) {
+      localStorage.removeItem('demoAuth');
+      localStorage.removeItem('activeRole');
+      setUser(null);
+      setSession(null);
+      setRoles([]);
+      setActiveRole(null);
+      toast.success('Signed out (local demo mode)');
+      navigate('/');
+      return;
+    }
+
     const { error } = await supabase.auth.signOut();
     if (error) {
       toast.error('Error signing out');
@@ -351,6 +447,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const resetPassword = async (email: string) => {
     try {
+      if (!isSupabaseConfigured) {
+        toast.info('Password reset is disabled in local demo mode.');
+        return { error: null };
+      }
+
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth?reset=true`,
       });

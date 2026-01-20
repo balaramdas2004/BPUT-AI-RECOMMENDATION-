@@ -72,7 +72,7 @@ export const detectAndDraw = async (
 
   const drawingUtils = new DrawingUtils(ctx);
   
-  let result: DetectionResult = {
+  const result: DetectionResult = {
     faceDetected: false,
     eyeContact: 0,
     headPose: { yaw: 0, pitch: 0 },

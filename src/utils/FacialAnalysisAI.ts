@@ -1,8 +1,8 @@
 import { pipeline } from '@huggingface/transformers';
 
 // AI Models for facial analysis
-let emotionClassifier: any = null;
-let eyeTracker: any = null;
+let emotionClassifier: unknown = null;
+const eyeTracker: unknown = null;
 
 export interface FacialAnalysisResult {
   emotions: { label: string; score: number }[];
@@ -33,7 +33,7 @@ export const analyzeFacialExpression = async (imageData: string): Promise<Facial
 
   try {
     // Analyze emotions
-    const emotions = await emotionClassifier(imageData);
+    const emotions = await (emotionClassifier as any)(imageData);
     
     // Calculate engagement based on positive emotions
     const positiveEmotions = ['happy', 'neutral'];
