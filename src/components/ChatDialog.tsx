@@ -54,6 +54,7 @@ const ChatDialog = ({ isOpen, onClose, contextType }: ChatDialogProps) => {
 
     try {
       // If Supabase isn't configured, fall back to a local dev proxy that calls Gemini server-side.
+      // recheck the code.
       if (!isSupabaseConfigured) {
         const response = await fetch('/api/gemini/chat', {
           method: 'POST',
